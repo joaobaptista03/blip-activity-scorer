@@ -1,0 +1,21 @@
+#!/bin/sh
+
+echo "Running pre-commit hooks..."
+
+# Run formatting check
+unformatted=$(gofmt -l .)
+if [ -n "$unformatted" ]; then
+    echo "FAIL: Unformatted Go files found:"
+    echo "$unformatted"
+    echo "Please format your code using 'make fmt' before committing."
+    exit 1
+fi
+
+# Run linting check
+if ! go vet ./...; then
+    echo "FAIL: go vet failed. Please fix issues before committing."
+    exit 1
+fi
+
+echo "All checks passed!"
+exit 0

@@ -64,6 +64,21 @@ To run the unit test suite covering ingestion, deduplication, associative mergin
 go test -v ./...
 ```
 
+## Makefile
+
+A `Makefile` is provided for convenience:
+
+| Target | Description |
+| ------ | ----------- |
+| `make build` | Compile the binary |
+| `make test` | Run unit tests with verbose output |
+| `make run` | Build and run the scorer |
+| `make bench` | Run Go benchmarks with memory stats |
+| `make lint` | Run `go vet` and `gofmt -l` |
+| `make clean` | Remove compiled binary and generated output |
+
+The codebase is clean of static analysis warnings and complies fully with standard formatting rules. Run verification with `make lint`.
+
 ## Inputs and Outputs
 
 * **Input**: The program expects a CSV file named `commits.csv` in the root folder with columns `timestamp,username,repository,files,additions,deletions`.
