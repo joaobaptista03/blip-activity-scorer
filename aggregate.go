@@ -56,28 +56,6 @@ func (s *RepoStats) Merge(other *RepoStats) {
 	}
 }
 
-// Aggregator accumulates repository stats for a stream of commits.
-type Aggregator struct {
-	Stats map[string]*RepoStats
-}
-
-// NewAggregator creates a new Aggregator.
-func NewAggregator() *Aggregator {
-	return &Aggregator{
-		Stats: make(map[string]*RepoStats),
-	}
-}
-
-// Add updates the aggregator stats for a given commit.
-func (a *Aggregator) Add(c Commit) {
-	s, exists := a.Stats[c.Repository]
-	if !exists {
-		s = NewRepoStats(c.Repository)
-		a.Stats[c.Repository] = s
-	}
-	s.Update(c)
-}
-
 func (s *RepoStats) AvgChurn() float64 {
 	if s.CommitCount == 0 {
 		return 0.0

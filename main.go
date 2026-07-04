@@ -14,31 +14,20 @@ func main() {
 }
 
 func run() error {
-	file, err := os.Open("commits.csv")
+	// Run concurrent aggregator
+	commitsFile, err := os.Open("commits.csv")
 	if err != nil {
 		return fmt.Errorf("failed to open commits.csv: %w", err)
 	}
-	defer file.Close()
+	defer commitsFile.Close()
 
-	deduper := NewDeduplicator()
-	var duplicateCount int64
-
-	aggregator := NewAggregator()
-
-	stats, err := StreamCommits(file, func(c Commit) error {
-		if deduper.IsDuplicate(c) {
-			duplicateCount++
-			return nil
-		}
-		aggregator.Add(c)
-		return nil
-	})
+	result, err := RunPipeline(commitsFile, 0)
 	if err != nil {
-		return err
+		return fmt.Errorf("concurrent pipeline failed: %w", err)
 	}
 
 	fmt.Printf("Ingestion completed. Total: %d, Parsed: %d, Skipped: %d, Duplicates: %d\n",
-		stats.TotalRows, stats.ParsedRows, stats.SkippedRows, duplicateCount)
-	fmt.Printf("Aggregated %d distinct repositories.\n", len(aggregator.Stats))
+		result.IngestStats.TotalRows, result.IngestStats.ParsedRows, result.IngestStats.SkippedRows, result.DuplicateCount)
+	fmt.Printf("Aggregated %d distinct repositories.\n", len(result.Stats))
 	return nil
 }
