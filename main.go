@@ -20,14 +20,22 @@ func run() error {
 	}
 	defer file.Close()
 
+	deduper := NewDeduplicator()
+	var duplicateCount int64
+
 	stats, err := StreamCommits(file, func(c Commit) error {
-		// Temporary stub handler
+		if deduper.IsDuplicate(c) {
+			duplicateCount++
+			return nil
+		}
+		// Blank usernames are preserved as empty strings and will be handled during aggregation.
 		return nil
 	})
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Ingestion completed. Total: %d, Parsed: %d, Skipped: %d\n", stats.TotalRows, stats.ParsedRows, stats.SkippedRows)
+	fmt.Printf("Ingestion completed. Total: %d, Parsed: %d, Skipped: %d, Duplicates: %d\n",
+		stats.TotalRows, stats.ParsedRows, stats.SkippedRows, duplicateCount)
 	return nil
 }
