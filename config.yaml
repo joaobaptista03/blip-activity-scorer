@@ -1,0 +1,7 @@
+# Scoring weights configuration for the Repository Activity Scorer.
+# The sum of all weights must equal 1.0.
+weights:
+  commits: 0.30
+  contributors: 0.20
+  churn: 0.25
+  consistency: 0.25

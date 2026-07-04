@@ -1,4 +1,4 @@
-package main
+package app
 
 // Deduplicator keeps track of seen commits to filter exact duplicate rows.
 type Deduplicator struct {

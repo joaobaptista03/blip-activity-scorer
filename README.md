@@ -58,17 +58,21 @@ flowchart LR
 ## Project Structure
 
 * `main.go` - Entrypoint that orchestrates the ingestion, processing, and output pipeline.
-* `ingest.go` - High-performance streaming parser and defines the `Commit` and `IngestStats` models.
-* `clean.go` - Streaming Deduplicator that filters out duplicate data entries.
-* `aggregate.go` - Data structures and operations to collect stats per repository (defines `RepoStats`).
-* `pipeline.go` - Concurrency orchestration layer that handles worker-pool chunking and fan-in stats merging.
-* `score.go` - Multi-signal activity score scoring and ranking algorithm (defines `RankedRepo`).
-* `output.go` - Output generation handler for exporting ranking results.
-* `clean_test.go` - Deduplicator unit tests.
-* `aggregate_test.go` - Merge and aggregate logic tests and benchmarks.
-* `score_test.go` - Scoring logic tests.
-* `ingest_test.go` - Ingestion parser tests and benchmarks.
-* `pipeline_test.go` - Pipeline concurrent benchmarks.
+* `docs/` - Contains the original task instructions and documentation.
+* `internal/app/` - Core library package containing:
+  * `ingest.go` - High-performance streaming parser and defines the `Commit` and `IngestStats` models.
+  * `clean.go` - Streaming deduplicator that filters out duplicate entries.
+  * `config.go` - YAML configuration loader and validator.
+  * `aggregate.go` - Stats collection and merging per repository (defines `RepoStats`).
+  * `pipeline.go` - Worker-pool orchestration and concurrent fan-in merging.
+  * `score.go` - Multi-signal activity scoring and ranking algorithm (defines `RankedRepo`).
+  * `output.go` - Output handler for writing ranked results to CSV.
+  * `clean_test.go` - Deduplicator logic unit tests.
+  * `aggregate_test.go` - Associative merging logic tests & benchmarks.
+  * `score_test.go` - Multi-signal activity scoring tests.
+  * `ingest_test.go` - CSV streaming parser tests & single-threaded benchmarks.
+  * `pipeline_test.go` - Concurrent pipeline benchmarks.
+  * `config_test.go` - Dynamic YAML configuration and weights validation tests.
 
 ## Running the Application
 
@@ -113,6 +117,20 @@ A `Makefile` is provided for convenience:
 | `make clean` | Remove compiled binary and generated output |
 
 The codebase is clean of static analysis warnings and complies fully with standard formatting rules. Run verification with `make lint`.
+
+## Configuration
+
+The application's scoring weights can be configured dynamically by modifying the `config.yaml` file in the root directory. If the file is missing, the application falls back to default weights:
+
+```yaml
+weights:
+  commits: 0.30
+  contributors: 0.20
+  churn: 0.25
+  consistency: 0.25
+```
+
+The sum of all weights must equal exactly `1.0`. The application validates this configuration on startup.
 
 ## Inputs and Outputs
 

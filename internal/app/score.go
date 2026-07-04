@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"math"
@@ -38,11 +38,14 @@ func (r RankedRepo) AvgChurn() float64 {
 	return r.TotalChurn / float64(r.CommitCount)
 }
 
-func CalculateScores(stats map[string]*RepoStats) []RankedRepo {
+// CalculateScores takes raw RepoStats, applies the scoring formula,
+// normalizes the components across all repositories, and returns a sorted slice.
+func CalculateScores(stats map[string]*RepoStats, weights WeightsConfig) []RankedRepo {
 	if len(stats) == 0 {
 		return nil
 	}
 
+	// 1. Gather all calendar days represented in the dataset
 	globalActiveDays := make(map[string]struct{})
 	for _, s := range stats {
 		for d := range s.ActiveDays {
@@ -91,10 +94,10 @@ func CalculateScores(stats map[string]*RepoStats) []RankedRepo {
 		}
 	}
 
-	wCommits := 0.30
-	wContributors := 0.20
-	wChurn := 0.25
-	wConsistency := 0.25
+	wCommits := weights.Commits
+	wContributors := weights.Contributors
+	wChurn := weights.Churn
+	wConsistency := weights.Consistency
 
 	ranked := make([]RankedRepo, 0, len(stats))
 	for repo, s := range stats {
@@ -139,6 +142,7 @@ func CalculateScores(stats map[string]*RepoStats) []RankedRepo {
 		})
 	}
 
+	// Sort by Score descending. Break ties by Repository name alphabetically.
 	sort.Slice(ranked, func(i, j int) bool {
 		if math.Abs(ranked[i].Score-ranked[j].Score) < 1e-9 {
 			return ranked[i].Repository < ranked[j].Repository

@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"encoding/csv"
@@ -7,6 +7,9 @@ import (
 	"strconv"
 )
 
+// WriteCSV writes the full ranked list of repositories to a CSV file.
+// The output columns include rank, repository, score, commits, contributors,
+// active days, and average log-dampened churn.
 func WriteCSV(filePath string, ranked []RankedRepo) error {
 	file, err := os.Create(filePath)
 	if err != nil {
@@ -17,6 +20,7 @@ func WriteCSV(filePath string, ranked []RankedRepo) error {
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
+	// Write header
 	header := []string{
 		"rank",
 		"repository",
@@ -48,6 +52,7 @@ func WriteCSV(filePath string, ranked []RankedRepo) error {
 	return nil
 }
 
+// PrintTopTable prints the top 10 most active repositories to the standard output.
 func PrintTopTable(ranked []RankedRepo) {
 	fmt.Println("\nTop 10 Most Active Repositories:")
 	fmt.Printf("%-3s | %-12s | %-14s | %-7s | %-12s | %-11s | %-11s\n",

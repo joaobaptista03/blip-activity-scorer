@@ -3,27 +3,32 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"blip-activity-scorer/internal/app"
 )
 
 func main() {
-	fmt.Println("Repository Activity Scorer started")
-	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+	// Load configuration from config.yaml (falls back to defaults if missing)
+	cfg, err := app.LoadConfig("config.yaml")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: failed to load configuration: %v\n", err)
 		os.Exit(1)
 	}
-}
+	fmt.Printf("Loaded scoring weights: commits=%0.2f, contributors=%0.2f, churn=%0.2f, consistency=%0.2f\n",
+		cfg.Weights.Commits, cfg.Weights.Contributors, cfg.Weights.Churn, cfg.Weights.Consistency)
 
-func run() error {
 	// Run concurrent aggregator
 	commitsFile, err := os.Open("commits.csv")
 	if err != nil {
-		return fmt.Errorf("failed to open commits.csv: %w", err)
+		fmt.Fprintf(os.Stderr, "Error: failed to open commits.csv: %v\n", err)
+		os.Exit(1)
 	}
 	defer commitsFile.Close()
 
-	result, err := RunPipeline(commitsFile, 0)
+	result, err := app.RunPipeline(commitsFile, 0)
 	if err != nil {
-		return fmt.Errorf("concurrent pipeline failed: %w", err)
+		fmt.Fprintf(os.Stderr, "Error: concurrent pipeline failed: %v\n", err)
+		os.Exit(1)
 	}
 
 	fmt.Printf("Ingestion completed. Total: %d, Parsed: %d, Skipped: %d, Duplicates: %d\n",
@@ -31,16 +36,15 @@ func run() error {
 	fmt.Printf("Aggregated %d distinct repositories.\n", len(result.Stats))
 
 	// Calculate scores and rank repositories
-	ranked := CalculateScores(result.Stats)
+	ranked := app.CalculateScores(result.Stats, cfg.Weights)
 
-	PrintTopTable(ranked)
+	app.PrintTopTable(ranked)
 
 	// Write full ranking to CSV
 	outputFile := "ranking_full.csv"
-	if err := WriteCSV(outputFile, ranked); err != nil {
-		return fmt.Errorf("failed to write output CSV: %w", err)
+	if err := app.WriteCSV(outputFile, ranked); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: failed to write output CSV: %v\n", err)
+		os.Exit(1)
 	}
 	fmt.Printf("\nFull ranking written to %s\n", outputFile)
-
-	return nil
 }

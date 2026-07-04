@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"testing"
@@ -33,7 +33,7 @@ func TestScoring(t *testing.T) {
 	r3.ActiveDays["2021-01-01"] = struct{}{}
 	stats["repo3"] = r3
 
-	ranked := CalculateScores(stats)
+	ranked := CalculateScores(stats, DefaultConfig().Weights)
 
 	if len(ranked) != 3 {
 		t.Fatalf("expected 3 ranked repos, got %d", len(ranked))
