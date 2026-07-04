@@ -16,6 +16,23 @@ Where the sub-metrics and weights are:
 
 Each raw metric is normalized relative to the maximum observed value across all repositories to the range $[0, 1]$.
 
+## 3. Concurrency & Pipeline Design
+
+To scale efficiency on a single machine, the ingestion pipeline processes commit data using a streaming worker-pool:
+
+```mermaid
+flowchart LR
+    A[commits.csv] --> B[Stream Parser]
+    B --> C[Deduplicator]
+    C -->|Clean Batches| D[Worker Pool]
+    D --> E[Lock-free Mergers]
+    E --> F[Fan-in Aggregate]
+    F --> G[Ranker & Output]
+```
+
+* **Low Memory Streaming**: Commits are parsed row-by-row without loading the entire file into memory.
+* **Worker Pool**: Chunking commits into batches of 1,000 limits channel synchronization overhead. Workers maintain lock-free local maps, which are then combined in a single-threaded fan-in merge.
+
 ## Prerequisites
 
 * **Go 1.22 or higher** is required to compile and run the project.
