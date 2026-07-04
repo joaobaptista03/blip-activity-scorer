@@ -1,0 +1,18 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+blip-activity-scorer
+
+# Output files
+ranking_full.csv
+blip-activity-scorer.zip
+
+# IDE/System files
+.idea/
+.vscode/
+.DS_Store
+*.swp
