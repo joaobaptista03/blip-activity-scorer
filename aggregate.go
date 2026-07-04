@@ -7,11 +7,16 @@ import (
 
 // RepoStats tracks running statistics for a single repository.
 type RepoStats struct {
-	Repository         string
-	CommitCount        int64
+	// Repository is the name of the repository.
+	Repository string
+	// CommitCount is the running count of commits.
+	CommitCount int64
+	// UniqueContributors tracks unique authors (including an "<unknown>" sentinel).
 	UniqueContributors map[string]struct{}
-	TotalChurn         float64
-	ActiveDays         map[string]struct{}
+	// TotalChurn accumulates the log-dampened churn values.
+	TotalChurn float64
+	// ActiveDays tracks unique dates of activity in UTC format ("2006-01-02").
+	ActiveDays map[string]struct{}
 }
 
 // NewRepoStats initializes and returns a new RepoStats.
@@ -56,6 +61,7 @@ func (s *RepoStats) Merge(other *RepoStats) {
 	}
 }
 
+// AvgChurn returns the average log-dampened code churn per commit.
 func (s *RepoStats) AvgChurn() float64 {
 	if s.CommitCount == 0 {
 		return 0.0

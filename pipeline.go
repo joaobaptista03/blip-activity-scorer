@@ -9,6 +9,7 @@ import (
 // RunPipeline runs the concurrent ingestion, deduplication, and aggregation pipeline.
 // It streams records from r, deduplicates them using a main-thread Deduplicator,
 // streams them in batches to worker goroutines, and merges their partial maps.
+// numWorkers specifies the worker count (defaults to runtime.NumCPU() if <= 0).
 
 // PipelineResult encapsulates the results of the concurrent pipeline.
 type PipelineResult struct {

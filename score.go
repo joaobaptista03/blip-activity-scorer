@@ -5,20 +5,32 @@ import (
 	"sort"
 )
 
+// RankedRepo represents a repository with its raw stats and normalized activity scores.
 type RankedRepo struct {
-	Repository         string
-	Score              float64
-	CommitCount        int64
+	// Repository is the repository name.
+	Repository string
+	// Score is the final weighted composite activity score in the range [0, 1].
+	Score float64
+	// CommitCount is the raw number of commits.
+	CommitCount int64
+	// UniqueContributors is the number of distinct commit authors.
 	UniqueContributors int
-	TotalChurn         float64
-	ActiveDays         int
+	// TotalChurn is the cumulative log-dampened code churn.
+	TotalChurn float64
+	// ActiveDays is the number of distinct UTC days with at least one commit.
+	ActiveDays int
 
-	CommitScore        float64
-	ContributorScore   float64
-	ChurnScore         float64
-	ConsistencyScore   float64
+	// CommitScore is the normalized commit frequency component [0, 1].
+	CommitScore float64
+	// ContributorScore is the normalized contributor diversity component [0, 1].
+	ContributorScore float64
+	// ChurnScore is the normalized churn intensity component [0, 1].
+	ChurnScore float64
+	// ConsistencyScore is the normalized date consistency component [0, 1].
+	ConsistencyScore float64
 }
 
+// AvgChurn returns the average log-dampened code churn per commit.
 func (r RankedRepo) AvgChurn() float64 {
 	if r.CommitCount == 0 {
 		return 0.0

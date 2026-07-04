@@ -9,18 +9,27 @@ import (
 
 // Commit represents a single record parsed from commits.csv.
 type Commit struct {
-	Timestamp  int64
-	Username   string
+	// Timestamp is the Unix timestamp of the commit.
+	Timestamp int64
+	// Username is the GitHub username of the commit author (empty if unknown).
+	Username string
+	// Repository is the name of the repository the commit was pushed to.
 	Repository string
-	Files      int
-	Additions  int
-	Deletions  int
+	// Files is the number of files changed by the commit.
+	Files int
+	// Additions is the number of line additions in this commit.
+	Additions int
+	// Deletions is the number of deletions in this commit.
+	Deletions int
 }
 
 // IngestStats tracks parsing statistics during ingestion.
 type IngestStats struct {
-	TotalRows   int64 // Excludes header
-	ParsedRows  int64
+	// TotalRows is the total number of CSV data rows read (excluding header).
+	TotalRows int64
+	// ParsedRows is the number of rows successfully parsed into Commit structs.
+	ParsedRows int64
+	// SkippedRows is the number of malformed rows encountered and skipped.
 	SkippedRows int64
 }
 
