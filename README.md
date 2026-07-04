@@ -16,6 +16,23 @@ Where the sub-metrics and weights are:
 
 Each raw metric is normalized relative to the maximum observed value across all repositories to the range $[0, 1]$.
 
+## 2. Top 10 Most Active Repositories
+
+The following are the top 10 most active repositories calculated from the `commits.csv` dataset:
+
+| Rank | Repository | Activity Score | Commits | Unique Contributors | Active Days | Avg Log Churn |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | `repo250` | **0.813201** | 1087 | 55 | 68 | 2.9092 |
+| 2 | `repo518` | **0.769146** | 577 | 29 | 66 | 3.8965 |
+| 3 | `repo982` | **0.741431** | 449 | 31 | 67 | 2.7983 |
+| 4 | `repo126` | **0.740470** | 551 | 21 | 63 | 3.8844 |
+| 5 | `repo795` | **0.694360** | 418 | 19 | 57 | 3.5398 |
+| 6 | `repo127` | **0.690802** | 376 | 12 | 61 | 3.8929 |
+| 7 | `repo546` | **0.675124** | 202 | 19 | 57 | 4.0855 |
+| 8 | `repo476` | **0.663753** | 372 | 10 | 55 | 4.0663 |
+| 9 | `repo740` | **0.628538** | 612 | 8 | 51 | 2.6001 |
+| 10 | `repo117` | **0.615816** | 250 | 7 | 52 | 3.8781 |
+
 ## 3. Concurrency & Pipeline Design
 
 To scale efficiency on a single machine, the ingestion pipeline processes commit data using a streaming worker-pool:
