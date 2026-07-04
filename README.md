@@ -76,6 +76,9 @@ flowchart LR
 
 ## Running the Application
 
+> [!IMPORTANT]
+> All commands must be run from the **project root directory** (the folder containing `commits.csv` and `config.yaml`) so that relative file path resolution works correctly.
+
 Ensure you have your dataset file named `commits.csv` inside the current working directory.
 
 ### Run Directly
@@ -114,9 +117,25 @@ A `Makefile` is provided for convenience:
 | `make run` | Build and run the scorer |
 | `make bench` | Run Go benchmarks with memory stats |
 | `make lint` | Run `go vet` and `gofmt -l` |
+| `make fmt` | Format all Go files recursively |
+| `make githooks` | Configure local Git pre-commit hooks |
 | `make clean` | Remove compiled binary and generated output |
 
 The codebase is clean of static analysis warnings and complies fully with standard formatting rules. Run verification with `make lint`.
+
+### Git Pre-commit Hooks
+
+To enable automatic code formatting (`gofmt`) and linting (`go vet`) verification before every commit, enable the local githooks configuration:
+
+```bash
+make githooks
+```
+
+If files are not formatted, they can be fixed automatically using:
+
+```bash
+make fmt
+```
 
 ## Configuration
 
@@ -137,6 +156,10 @@ The sum of all weights must equal exactly `1.0`. The application validates this 
 * **Input**: The program expects a CSV file named `commits.csv` in the root folder with columns `timestamp,username,repository,files,additions,deletions`.
 * **Output (Console)**: The top 10 most active repositories printed as a formatted table.
 * **Output (File)**: A full list of all ranked repositories saved to `ranking_full.csv` (excluded from Git).
+
+### External Dependencies Note
+
+`gopkg.in/yaml.v3` is the sole external dependency imported by the codebase. This was a deliberate engineering tradeoff to allow dynamic, validation-checked score weights calibration without requiring binary recompilation. All other operations (CSV parsing, concurrency pipelines, and reporting) rely strictly on Go's standard library.
 
 ## 6. Performance Benchmarks
 
