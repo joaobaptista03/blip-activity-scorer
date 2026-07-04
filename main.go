@@ -23,12 +23,14 @@ func run() error {
 	deduper := NewDeduplicator()
 	var duplicateCount int64
 
+	aggregator := NewAggregator()
+
 	stats, err := StreamCommits(file, func(c Commit) error {
 		if deduper.IsDuplicate(c) {
 			duplicateCount++
 			return nil
 		}
-		// Blank usernames are preserved as empty strings and will be handled during aggregation.
+		aggregator.Add(c)
 		return nil
 	})
 	if err != nil {
@@ -37,5 +39,6 @@ func run() error {
 
 	fmt.Printf("Ingestion completed. Total: %d, Parsed: %d, Skipped: %d, Duplicates: %d\n",
 		stats.TotalRows, stats.ParsedRows, stats.SkippedRows, duplicateCount)
+	fmt.Printf("Aggregated %d distinct repositories.\n", len(aggregator.Stats))
 	return nil
 }
