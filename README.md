@@ -31,9 +31,10 @@ Each raw metric is normalized relative to the maximum observed value across all 
 * `score.go` - Multi-signal activity score scoring and ranking algorithm (defines `RankedRepo`).
 * `output.go` - Output generation handler for exporting ranking results.
 * `clean_test.go` - Deduplicator unit tests.
-* `aggregate_test.go` - Merge and aggregate logic tests.
+* `aggregate_test.go` - Merge and aggregate logic tests and benchmarks.
 * `score_test.go` - Scoring logic tests.
-* `ingest_test.go` - Ingestion parser tests.
+* `ingest_test.go` - Ingestion parser tests and benchmarks.
+* `pipeline_test.go` - Pipeline concurrent benchmarks.
 
 ## Running the Application
 
@@ -84,3 +85,15 @@ The codebase is clean of static analysis warnings and complies fully with standa
 * **Input**: The program expects a CSV file named `commits.csv` in the root folder with columns `timestamp,username,repository,files,additions,deletions`.
 * **Output (Console)**: The top 10 most active repositories printed as a formatted table.
 * **Output (File)**: A full list of all ranked repositories saved to `ranking_full.csv` (excluded from Git).
+
+## 6. Performance Benchmarks
+
+The Go benchmark suite was executed on an Intel(R) Core(TM) Ultra 7 155U CPU (14 logical cores), measuring processing efficiency:
+
+```
+BenchmarkMerge-14                 330612          3790 ns/op           0 B/op          0 allocs/op
+BenchmarkSingleThreaded-14            81      13429184 ns/op     6886000 B/op      50615 allocs/op
+BenchmarkConcurrent-14               100      10210379 ns/op     8605571 B/op      50931 allocs/op
+```
+
+The concurrent aggregator achieves a ~24% speedup over the single-threaded implementation on the small 22,422-row dataset with minimal allocation overhead.

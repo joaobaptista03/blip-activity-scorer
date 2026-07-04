@@ -79,3 +79,16 @@ func TestMerge(t *testing.T) {
 		t.Error("Merge commutativity check failed: S1 + S2 + S3 != S3 + S2 + S1")
 	}
 }
+
+func BenchmarkMerge(b *testing.B) {
+	s1 := NewRepoStats("repo1")
+	s2 := NewRepoStats("repo1")
+	for j := 0; j < 100; j++ {
+		s2.UniqueContributors[string(rune(j))] = struct{}{}
+		s2.ActiveDays[string(rune(j))] = struct{}{}
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		s1.Merge(s2)
+	}
+}

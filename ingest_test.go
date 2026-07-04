@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"os"
 	"strings"
 	"testing"
 )
@@ -40,6 +42,38 @@ invalid_timestamp,user0,repo2,5,153,0
 
 	if len(parsed) != 3 {
 		t.Errorf("expected 3 parsed commits, got %d", len(parsed))
+	}
+}
+
+var csvBytes []byte
+
+func init() {
+	var err error
+	csvBytes, err = os.ReadFile("commits.csv")
+	if err != nil {
+		csvBytes, err = os.ReadFile("../../commits.csv")
+		if err != nil {
+			// Suppress error so tests still compile/run even if commits.csv is missing
+		}
+	}
+}
+
+func BenchmarkSingleThreaded(b *testing.B) {
+	if len(csvBytes) == 0 {
+		b.Skip("commits.csv not found")
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		reader := bytes.NewReader(csvBytes)
+		deduper := NewDeduplicator()
+		aggregator := NewAggregator()
+		_, _ = StreamCommits(reader, func(c Commit) error {
+			if deduper.IsDuplicate(c) {
+				return nil
+			}
+			aggregator.Add(c)
+			return nil
+		})
 	}
 }
 
