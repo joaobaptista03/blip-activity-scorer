@@ -2,6 +2,20 @@
 
 A high-performance, concurrent, memory-efficient Go command-line tool designed to ingest commit history from an inner-source development environment, clean data issues (e.g., duplicates), and score and rank repositories based on a multi-signal activity metric.
 
+## 1. Algorithm & Scoring Design
+
+To measure repository activity, the scorer aggregates statistics on each repository and evaluates a multi-signal scoring formula:
+
+$$\text{Score} = w_1 \cdot \text{CommitScore} + w_2 \cdot \text{ContributorScore} + w_3 \cdot \text{ChurnScore} + w_4 \cdot \text{ConsistencyScore}$$
+
+Where the sub-metrics and weights are:
+* **$w_1$ (Commit Frequency) = 0.30**: Dampened using $\ln(1 + \text{CommitCount})$ to prevent minor commit spamming from dominating.
+* **$w_2$ (Contributor Diversity) = 0.20**: Dampened using $\ln(1 + \text{UniqueContributors})$ to value team collaboration.
+* **$w_3$ (Code Churn Intensity) = 0.25**: Average log-churn per commit, $\frac{\sum \ln(1 + \text{additions} + \text{deletions})}{\text{CommitCount}}$, dampening massive single commits.
+* **$w_4$ (Consistency) = 0.25**: Active consistency over the time period, computed as $\frac{\text{ActiveDays}}{\text{TotalDays}}$ in UTC.
+
+Each raw metric is normalized relative to the maximum observed value across all repositories to the range $[0, 1]$.
+
 ## Prerequisites
 
 * **Go 1.22 or higher** is required to compile and run the project.
