@@ -1,4 +1,6 @@
 # Repository Activity Scorer
+[![CI](https://github.com/joaobaptista03/blip-activity-scorer/actions/workflows/ci.yml/badge.svg)](https://github.com/joaobaptista03/blip-activity-scorer/actions/workflows/ci.yml)
+[![Go Version](https://img.shields.io/badge/Go-1.22-blue.svg)](https://golang.org)
 
 A high-performance, concurrent, memory-efficient Go command-line tool designed to ingest commit history from an inner-source development environment, clean data issues (e.g., duplicates), and score and rank repositories based on a multi-signal activity metric.
 
